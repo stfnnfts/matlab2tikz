@@ -943,6 +943,9 @@ function m2t = drawGridOfAxes(m2t, handle)
                     isOn(get(handle, 'ZMinorGrid')) && isAxis3D(handle)];
 
     xyz = {'x', 'y', 'z'};
+    XYZ = {'X', 'Y', 'Z'};
+    
+    
 
     % Check for local grid options
     % NOTE: for individual axis color options see the pfgmanual under
@@ -955,6 +958,10 @@ function m2t = drawGridOfAxes(m2t, handle)
         if hasMinorGrid(i)
             grid    = [xyz{i}, 'minorgrids'];
             options = opts_add(options, grid);
+            if (length(handle.([ XYZ{i} 'Axis']).MinorTickValues) > 1) & (length(handle.([ XYZ{i} 'Axis']).TickValues) > 1)
+                tick_num = round((handle.([ XYZ{i} 'Axis']).TickValues(2) - handle.([ XYZ{i} 'Axis']).TickValues(1)) / (handle.([ XYZ{i} 'Axis']).MinorTickValues(2) - handle.([ XYZ{i} 'Axis']).MinorTickValues(1)) - 1);
+                options = opts_add(options,['minor ' xyz{i}, ' tick num'], {num2str(tick_num)});
+            end
         end
     end
 
@@ -994,29 +1001,32 @@ function m2t = drawGridOfAxes(m2t, handle)
         % Get the line style and translate it to pgfplots
         [minorGridLS, isDefault] = getAndCheckDefault(...
             'axes', handle, 'MinorGridLineStyle', ':');
-        if ~isDefault || m2t.args.strict
+        %if ~isDefault || m2t.args.strict
             minorGridOpts = opts_add(minorGridOpts, translateLineStyle(minorGridLS));
-        end
+        %end
 
         % Get the color of the grid and translate it to pgfplots usable
         % values
         [minorGridColor, defaultColor] = getAndCheckDefault(...
             'axes', handle, 'MinorGridColor', [0.1, 0.1, 0.1]);
-        if ~defaultColor
+        %if ~defaultColor || m2t.args.strict
             [m2t, minorGridColor] = getColor(m2t, handle, minorGridColor, 'patch');
             minorGridOpts = opts_add(minorGridOpts, minorGridColor);
-        end
+        %end
 
         % Get the alpha of the grid and translate it to pgfplots
         [minorGridAlpha, defaultAlpha] = getAndCheckDefault(...
             'axes', handle, 'MinorGridAlpha', 0.1);
-        if ~defaultAlpha
+        %if ~defaultAlpha || m2t.args.strict
             minorGridOpts = opts_add(minorGridOpts, 'opacity', num2str(minorGridAlpha));
-        end
+        %end
 
         if ~isempty(minorGridOpts)
             options = opts_addSubOpts(options, 'minor grid style', minorGridOpts);
         end
+        
+        %% TODO: solve workaround
+        options = opts_add(options,'minor tick length', {'0'});
     end
 
     if ~any(hasGrid) && ~any(hasMinorGrid)
