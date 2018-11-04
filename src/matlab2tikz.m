@@ -2282,6 +2282,9 @@ function [m2t, str] = drawPatch(m2t, handle)
     [m2t, verticesTable, tableOptions] = makeTable(m2t, columnNames, Vertices);
     tableOptions = opts_merge(tableOptions, verticesTableOptions);
 
+    % use shader=interp
+    drawOptions = opts_add(drawOptions,'shader',{'interp'}); 
+    
     % Print out
     drawOpts = opts_print(drawOptions);
     tabOpts  = opts_print(tableOptions);
